@@ -20,26 +20,35 @@ def check_possible_move(x, y, letter):
 #     else False
 #     also check letter TODO
     if current_state[x][y] == " ":
-        return True
-    else:
-        return False
+        if letter=="X" or letter=="O":
+           return True
+        else:
+            return False
 
 
 def move(x, y, letter):
     current_state[x][y]=letter
 
 
+def make_move(x,y,letter):
+        if check_possible_move(x, y, letter):
+            move(x, y, letter)
+        else:
+            print("Forbidden action {} {} {}".format(x, y, letter))
+
 if __name__ == '__main__':
     print_filed(current_state)
     print()
-    move(0, 1, "O")
+    make_move(0, 1, "O")
     print_filed(current_state)
     print()
-    x, y, letter = 0, 0, "X"
-
-    # обурнуть в ф-ю TODO
-    if check_possible_move(x, y, letter):
-        move(x, y, letter)
-    else:
-        print("Forbidden action {} {} {}".format(x, y, letter))
+    make_move(2,1,'X')
+    print_filed(current_state)
+    # x, y, letter = 2, 1, "X"
+    # обернуть в ф-ю TODO
+    #def make_move(x,y,letter):
+     #   if check_possible_move(x, y, letter):
+      #      move(x, y, letter)
+       # else:
+        #    print("Forbidden action {} {} {}".format(x, y, letter))
 
