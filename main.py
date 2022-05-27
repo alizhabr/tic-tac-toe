@@ -17,15 +17,17 @@ def check_is_over():
             print("O")
         else:
             print(" ")
-    for column in current_state:
+def column():
+    for x in range(4):
+        k = 0
+        for y in range(3):
+            if current_state[y][x] == current_state[y + 1][x]:
+                k += 1
+        if k == 2:
+            return (current_state[x][y])
+        else:
+            return ("no")
 
-        # TODO: Найти в ней ^ три крестика, вернуть "X"(ok)
-
-
-#          TODO: если O, то вернуть "O" (ok)
-#             Если в итоге _никто_, вернуть " "(ok)
-
-#     сделать аналогичную проверку на столбцы
 #     * аналогичное на диагонали
 
 
