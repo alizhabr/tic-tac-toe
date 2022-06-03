@@ -2,10 +2,10 @@ import random
 import os
 
 CURRENT_STATE = [
+    ["X", " ", " ", " "],
     [" ", " ", " ", " "],
-    [" ", " ", " ", " "],
-    [" ", " ", " ", " "],
-    [" ", " ", " ", " "],
+    [" ", " ", "X", " "],
+    [" ", " ", " ", "X"],
     [" ", " ", " ", " "],
 ]
 
@@ -69,6 +69,27 @@ def check_is_over():
 
     return "no"
 
+def diagonals ():
+        for x in range(1,ROWS):
+            k = 1
+            for y in range(1, COLS):
+
+                best_letter = CURRENT_STATE[y][y]
+                best_letter_len = 1
+                if (CURRENT_STATE[y][y] == CURRENT_STATE[y-1][y - 1]) and CURRENT_STATE[y][y] != " ":
+                    k += 1
+                else:
+                    if k > best_letter_len:
+                        best_letter_len = k
+                        best_letter = CURRENT_STATE[y-1][y-1]
+                    k = 1
+            if k > best_letter_len:
+                best_letter_len = k
+                best_letter = CURRENT_STATE[y-1][y-1]
+
+            if best_letter_len >= TO_WIN:
+                return best_letter
+            return "no"
 
 def print_field():
     def green(s):
@@ -113,6 +134,7 @@ def comp_make_action():
 if __name__ == '__main__':
     print_field()
 
+    print(diagonals())
     for turn in range(4):
         print("\n" * 10)
         comp_make_action()
