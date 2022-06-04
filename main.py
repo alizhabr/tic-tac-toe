@@ -2,10 +2,10 @@ import random
 import os
 
 CURRENT_STATE = [
-    ["X", " ", " ", " "],
+    [" ", "X", "O", " "],
+    [" ", "O", "X", " "],
+    ["O", " ", " ", "X"],
     [" ", " ", " ", " "],
-    [" ", " ", "X", " "],
-    [" ", " ", " ", "X"],
     [" ", " ", " ", " "],
 ]
 
@@ -69,27 +69,58 @@ def check_is_over():
 
     return "no"
 
-def diagonals ():
-        for x in range(1,ROWS):
-            k = 1
-            for y in range(1, COLS):
+def diagonals_backslash():
+    # diag = row_number - col_number
+    for diag in range(0 - COLS + 1, ROWS - 0):
+        min_row = max(diag, 0)
+        x = min_row
+        y = x - diag
 
-                best_letter = CURRENT_STATE[y][y]
-                best_letter_len = 1
-                if (CURRENT_STATE[y][y] == CURRENT_STATE[y-1][y - 1]) and CURRENT_STATE[y][y] != " ":
-                    k += 1
-                else:
-                    if k > best_letter_len:
-                        best_letter_len = k
-                        best_letter = CURRENT_STATE[y-1][y-1]
-                    k = 1
-            if k > best_letter_len:
-                best_letter_len = k
-                best_letter = CURRENT_STATE[y-1][y-1]
+        while (x < ROWS-1) and (y < COLS-1):
+            x += 1
+            y += 1
+        max_row = x
 
-            if best_letter_len >= TO_WIN:
-                return best_letter
-            return "no"
+        k = 1
+        best_letter_len = 1
+
+
+        for x in range(min_row+1, max_row + 1):
+            y_new = x - diag
+
+            if (CURRENT_STATE[x][y_new] == CURRENT_STATE[x - 1][y_new - 1]) and CURRENT_STATE[x][y_new] != " ":
+                k += 1
+            else:
+                if k > best_letter_len:
+                    best_letter_len = k
+                    best_letter = CURRENT_STATE[x - 1][y_new - 1]
+                k = 1
+
+        if k > best_letter_len:
+            best_letter_len = k
+            best_letter = CURRENT_STATE[x - 1][y_new - 1]
+
+        if best_letter_len >= TO_WIN:
+            return best_letter
+    return "no"
+
+def diagonals_slash():
+    # переписать, не обращаясь к полю.
+    for i in range(COLS):
+        CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
+
+    answer = diagonals_backslash()
+
+    for i in range(COLS):
+        CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
+
+    return answer
+
+
+#  max row
+# best_letter = CURRENT_STATE[x][0]
+# best_letter_len = 1
+
 
 def print_field():
     def green(s):
@@ -134,19 +165,17 @@ def comp_make_action():
 if __name__ == '__main__':
     print_field()
 
-    print(diagonals())
-    for turn in range(4):
-        print("\n" * 10)
-        comp_make_action()
-        print_field()
+    print(diagonals_backslash())
+
+    print(diagonals_slash())
+    # for turn in range(4):
+    #     print("\n" * 10)
+    #     comp_make_action()
+    #     print_field()
     """
         ввести координаты
-        проверить, что они валидны (потом)
-        сделать ход за комп. просматривает все поля, сохраняет себе те, в которые он может ходить
-            possible_moves = [(0, 0), (1, 2) ... ]
         после этого делает ход.
         def choose_action(possible_moves):
             chosen_action = random.choice(possible_moves)
     #         do action
     """
-
