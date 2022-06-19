@@ -1,10 +1,12 @@
 import random
 import os
+import time
+from copy import deepcopy
 
 CURRENT_STATE = [
-    [" ", "X", "O", " "],
-    [" ", "O", "X", " "],
-    ["O", " ", " ", "X"],
+    [" ", " ", " ", " "],
+    [" ", "X", " ", " "],
+    [" ", " ", " ", " "],
     [" ", " ", " ", " "],
     [" ", " ", " ", " "],
 ]
@@ -61,60 +63,66 @@ def check_is_over():
                 return best_letter
         return "no"
 
+    def diagonals_backslash():
+        # diag = row_number - col_number
+        for diag in range(0 - COLS + 1, ROWS - 0):
+            min_row = max(diag, 0)
+            x = min_row
+            y = x - diag
+
+            while (x < ROWS - 1) and (y < COLS - 1):
+                x += 1
+                y += 1
+            max_row = x
+
+            k = 1
+            best_letter_len = 1
+
+            for x in range(min_row + 1, max_row + 1):
+                y_new = x - diag
+
+                if (CURRENT_STATE[x][y_new] == CURRENT_STATE[x - 1][y_new - 1]) and CURRENT_STATE[x][y_new] != " ":
+                    k += 1
+                else:
+                    if k > best_letter_len:
+                        best_letter_len = k
+                        best_letter = CURRENT_STATE[x - 1][y_new - 1]
+                    k = 1
+
+            if k > best_letter_len:
+                best_letter_len = k
+                best_letter = CURRENT_STATE[x - 1][y_new - 1]
+
+            if best_letter_len >= TO_WIN:
+                return best_letter
+        return "no"
+
+    def diagonals_slash():
+        # переписать, не обращаясь к полю.
+        for i in range(COLS):
+            CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
+
+        answer = diagonals_backslash()
+
+        for i in range(COLS):
+            CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
+
+        return answer
+
     if column() != "no":
         return column()
 
     if row() != "no":
         return row()
 
+    if diagonals_slash() != "no":
+        return diagonals_slash()
+
+    if diagonals_backslash() != "no":
+        return diagonals_backslash()
+
     return "no"
 
-def diagonals_backslash():
-    # diag = row_number - col_number
-    for diag in range(0 - COLS + 1, ROWS - 0):
-        min_row = max(diag, 0)
-        x = min_row
-        y = x - diag
-
-        while (x < ROWS-1) and (y < COLS-1):
-            x += 1
-            y += 1
-        max_row = x
-
-        k = 1
-        best_letter_len = 1
-
-
-        for x in range(min_row+1, max_row + 1):
-            y_new = x - diag
-
-            if (CURRENT_STATE[x][y_new] == CURRENT_STATE[x - 1][y_new - 1]) and CURRENT_STATE[x][y_new] != " ":
-                k += 1
-            else:
-                if k > best_letter_len:
-                    best_letter_len = k
-                    best_letter = CURRENT_STATE[x - 1][y_new - 1]
-                k = 1
-
-        if k > best_letter_len:
-            best_letter_len = k
-            best_letter = CURRENT_STATE[x - 1][y_new - 1]
-
-        if best_letter_len >= TO_WIN:
-            return best_letter
-    return "no"
-
-def diagonals_slash():
-    # переписать, не обращаясь к полю.
-    for i in range(COLS):
-        CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
-
-    answer = diagonals_backslash()
-
-    for i in range(COLS):
-        CURRENT_STATE[i] = CURRENT_STATE[i][::-1]
-
-    return answer
 
 
 #  max row
@@ -158,20 +166,63 @@ def get_possible_moves():
 
 def comp_make_action():
     moves = get_possible_moves()
-    x, y = random.choice(moves)
-    make_move(x, y, COMP_LETTER)
+
+    # смотрит все ходы ^
+    # пробует сходить в каждый
+    #  копирует поле.
+    global CURRENT_STATE
+
+    random.shuffle(moves)
+    dump_big = deepcopy(CURRENT_STATE)
+
+    for move in moves:
+        CURRENT_STATE = deepcopy(dump_big)
+
+        x, y = move
+        make_move(x, y, COMP_LETTER)
+        # /////
+        # победа за 1 ход
+        if check_is_over() != "no":
+            return
+        # /////
+        CURRENT_STATE = deepcopy(dump_big)
+        make_move(x, y, "X")
+        if check_is_over() != "no":
+            CURRENT_STATE = deepcopy(dump_big)
+            x, y = move
+            make_move(x, y, COMP_LETTER)
+            return
+
+        # цикл по ходам Крестика.
+        # ... continue
+
+
+    # x, y = random.choice(moves)
+
 
 
 if __name__ == '__main__':
     print_field()
 
-    print(diagonals_backslash())
+    for turn in range(5):
+        x=int(input())
+        y=int(input())
+        letter="X"
+        make_move(x,y,letter)
+        print_field()
 
-    print(diagonals_slash())
-    # for turn in range(4):
-    #     print("\n" * 10)
-    #     comp_make_action()
-    #     print_field()
+        if check_is_over() != "no":
+            print("X wins")
+            quit()
+
+        time.sleep(1)
+        print("\n" * 2)
+        comp_make_action()
+        print_field()
+        if check_is_over()!="no":
+            print("O wins")
+            quit()
+
     """
         ввести координаты
         после этого делает ход.
